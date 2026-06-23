@@ -2,9 +2,9 @@ include header
 
 html
     head
-        meta(property='og:title'       content='ЄСІКС')
-        meta(property='og:description' content='Єдина Судова Інформаційно-комунікаційна Система')
-        meta(property='og:url'         content='https://uacourt.org/')
+        meta(property='og:title'       content='ЄСІКС — ВКЗ')
+        meta(property='og:description' content='Єдина Судова Інформаційно-комунікаційна Система — Відеоконференцзв\'язок')
+        meta(property='og:url'         content='https://uacourt.github.io/vkz/')
 
 block title
     title ЄСІКС
@@ -24,9 +24,9 @@ block content
         br
         .exe
             section
-            h1 ВІДЕОКОНФЕРЕНЦЗВ'ЯЗОК
+            h1 ВКЗ
             p.
-                Процес модернізації та супроводу підсистеми ВКЗ включає наступні компоненти:
+                Процес модернізації та супроводу підсистеми відеоконференцзв'язку (ВКЗ) включає наступні стадії:
 
         .types
             -
@@ -49,6 +49,7 @@ block content
                         'Система телеметрії': 'telemetry/'
                     }
                 };
+
             .type
                 for v, k in structure
                     ol.type__col
@@ -115,19 +116,19 @@ block content
             p.
             div(style="padding-top: 8px;")
                 img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
-                a(href="documents/instructions.pdf") &nbsp; Інструкція користувача
+                a(href="documents/instructions.pdf") &nbsp; Посібник користувача ВКЗ
             br
             p.
                 Інструкції щодо налаштування мережевих екранів у судах (відкриття портів STUN 3478 UDP/TCP, TURN 3478/5349/8443/8444 UDP/TCP), конфігурації медіа-трактів та підключення обладнання. Також описано логіку прямого стрімінгу через Nginx-фронтенди зі сховища Scality S3 з підтримкою Ranges для перегляду за таймстампами.
             div(style="padding-top: 8px;")
                 img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
-                a(href="documents/admin.pdf") &nbsp; Інструкція адміністратора підсистеми ВКЗ
+                a(href="documents/admin.pdf") &nbsp; Настанови адміністратора ВКЗ
 
             h2 ТЕЛЕМЕТРІЯ
             p.
                 Вбудована система телеметрії на вебсокетах (RFC 6455) для передачі клієнтських метрик WebRTC Statistics API (стан ICE, RTT, джитер, втрата пакетів, навантаження CPU) у реальному часі на Telemetry Collector Node для подальшого аналізу в ELK та сповіщень у Zabbix.
             div(style="padding-top: 8px;")
-                a(href="telemetry/") &nbsp; Панель моніторингу вбудованої телеметрії
+                a(href="telemetry/") &nbsp; Панель моніторингу телементрії ВКЗ
         br
 
     hr
