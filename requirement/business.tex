@@ -1,0 +1,232 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{eso-pic}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage[english, ukrainian]{babel}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\definecolor{nato}{HTML}{293757}
+\definecolor{footergray}{gray}{0.65}
+
+\geometry{a4paper,left=3cm,right=3cm,top=3cm,bottom=3cm}
+\renewcommand{\familydefault}{\sfdefault}
+\setcounter{secnumdepth}{3}
+
+\titleformat{\section}
+  {\color{nato}\Huge\bfseries}{\thesection.}{1em}{}
+\titlespacing*{\section}{0pt}{30pt}{12pt}
+
+\titleformat{\subsection}
+  {\color{nato}\LARGE\bfseries}{\thesubsection.}{1em}{}
+\titlespacing*{\subsection}{0pt}{20pt}{8pt}
+
+\titleformat{\subsubsection}
+  {\color{nato}\Large\bfseries}{\thesubsubsection.}{1em}{}
+\titlespacing*{\subsubsection}{0pt}{10pt}{6pt}
+
+\fancyhf{}
+\fancyhead[R]{\small\color{footergray} 31 березня 2026}
+\fancyfoot[L]{\small\color{footergray} Технічні вимоги ЄСІКС. VIII. Бізнес, аналіз і звітність}
+
+\fancyfoot[R]{\small\color{footergray}\thepage}
+
+\newcommand\HUGE[1]{\fontsize{40}{40}\selectfont #1}
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footrule}{\color{footergray}\hrule width \textwidth height 0.4pt}
+
+\begin{document}
+
+\pagestyle{fancy}
+
+\begin{titlepage}
+  \AddToShipoutPictureBG*{\AtPageLowerLeft{\color{nato}\rule{\paperwidth}{\paperheight}}}
+  \color{white}\thispagestyle{empty}\vspace*{4cm}\centering
+  {\Huge  \textbf{Технічні вимоги ЄСІКС} \par} \vspace{2cm}
+  {\HUGE  \textbf{VIII. Бізнес, аналіз і звітність} \par} \vspace{2.5cm}
+  {\LARGE \textbf{VIII-1. Календарі та завдання} \par}
+  {\LARGE \textbf{VIII-2. Платежі} \par}
+  {\LARGE \textbf{VIII-3. Архів} \par}
+  {\LARGE \textbf{VIII-4. Коментування} \par}
+  {\LARGE \textbf{VIII-5. Конференц-зв'язок} \par}
+  {\LARGE \textbf{VIII-6. Журнали} \par} \vspace{2.5cm}
+  \vfill
+  {\large 2026 \copyright\ Інформаційні Судові Системи \par}
+\end{titlepage}
+
+\newpage
+
+\begin{center}
+  {\Huge\color{nato}\bfseries Зміст\par}
+\end{center}
+\vspace{40pt}
+\tableofcontents
+
+\begin{abstract}
+ТЕХНІЧНІ ВИМОГИ
+НА СТВОРЕННЯ ЗАСОБУ ІНФОРМАТИЗАЦІЇ - КОМПОНЕНТІВ “БІЗНЕС, АНАЛІЗ І ЗВІТНІСТЬ”
+ЄДИНОЇ СУДОВОЇ ІНФОРМАЦІЙНО-КОМУНІКАЦІЙНОЇ СИСТЕМИ.
+\end{abstract}
+
+\newpage
+
+\section{Календарі та завдання}
+
+\section{Платежі}
+
+\section{Архів}
+
+\section{Коментування}
+\section{Конференц-зв'язок}
+Централізована підсистема відеоконференцзв’язку (ВКЗ) забезпечує участь сторін у судових засіданнях поза межами приміщення суду, фіксацію перебігу судового засідання, а також збереження відео- та аудіозаписів (відеофонограм) у єдиному централізованому сховищі.
+
+\subsection{Вимоги до сутностей}
+
+\subsubsection{Груповий відеочат (Group Video Chat)}
+Об'єкт, що представляє активну кімнату конференції (відеосесію) на медіа-сервері OpenVidu (версії 3.2.0) або Flashphoner. Кімната визначається унікальним ідентифікатором, містить список активних учасників, порти для WebRTC з'єднань, статус запису та налаштування якості відео/аудіо.
+
+\subsubsection{Легкий веб-клієнт (SPA/PWA Client)}
+Клієнтський додаток (Single Page Application / Progressive Web App), який запускається в сумісних браузерах (Google Chrome, Opera, Mozilla Firefox, Safari) та забезпечує взаємодію з сигнальним сервером по WebSocket, налаштування локального обладнання та передачу аудіо/відео потоків по WebRTC.
+
+\subsubsection{Важкий клієнт фіксації засідань (Flutter Offline Client)}
+Автономний десктопний/мобільний додаток на базі фреймворку Flutter для локальної фіксації (запису та протоколювання) судових засідань в умовах відсутності зв’язку з мережею Інтернет. Додаток інтегрується з платами відеозахвату (BlackMagic) та OBS Studio і використовує локальне реляційне сховище (SQLite/LSM).
+
+\subsubsection{Бекенд лінія автоскейлінгу (Backend Scale Pods)}
+Сукупність масштабованих Pod-модулів (PHP 8.3 / Nginx) в Kubernetes, які обробляють запити до бізнес-логіки системи через HAProxy та використовують PgBouncer для оновлення та оптимізації підключень до бази даних.
+
+\subsubsection{Фронтенд лінія автоскейлінгу (Frontend Scale Pods)}
+Масштабовані Pod-модулі Nginx у Kubernetes, які забезпечують доставку статичних файлів інтерфейсу, кешування та прямий стрімінг (direct streaming) файлів відеофонограм зі сховища Scality без залучення PHP-процесів.
+
+\subsubsection{Сигнальний сервер (Signal Server Pod)}
+Сервер сигналізації на базі Node.js (Socket.io 4.8.3), що працює в декількох інстансах, синхронізується через Redis Pub/Sub та забезпечує обмін сигнальними повідомленнями WebRTC між учасниками.
+
+\subsubsection{Локальний бекенд TURN (TURN Control Backend)}
+Компонент, що здійснює динамічне управління пулом з 10 TURN-серверів (turn.court.gov.ua, turn1-10.court.gov.ua) для проходження трафіку WebRTC через NAT та брандмауери в закритих судових мережах.
+
+\subsubsection{Сховище Scality S3 (Scality Media Storage)}
+Централізоване об'єктне сховище Scality S3 для тривалого зберігання та архівування файлів відеофонограм (MP4) і підписаних PDF-протоколів судових засідань.
+
+\subsubsection{Реляційне сховище протоколів та чатів (PostgreSQL 16 Database)}
+База даних PostgreSQL 16 (Master з гарячою Standby реплікою на РЦОД), що містить логі чатів конференцій та партиційовані таблиці дій протоколу (партиції по 500 тис. записів).
+
+\subsubsection{Система вбудованої телеметрії (WebSocket Telemetry Client)}
+Модуль, вбудований у легкий веб-клієнт (SPA/PWA) та важкий клієнт на Flutter, який збирає в реальному часі статистику медіа-трактів та мережевого з'єднання (WebRTC Statistics API) і передає її по захищеному протоколу WebSocket (WSS) на сервер збору телеметрії.
+
+\subsubsection{Сервер збору телеметрії (Telemetry Collector Node)}
+Виділений високопродуктивний Pod-модуль у Kubernetes, який обробляє вхідні WebSocket-потоки телеметрії від тисяч одночасних клієнтів, аналізує стан мережі та навантаження і передає агреговані метрики до системи проактивного моніторингу (ELK/Zabbix).
+
+\subsection{Стандарти та протоколи медіа-трактів ВКЗ}
+З метою забезпечення сумісності медіа-трактів та мультиплексорів із міжнародними галузевими системами, підсистема ВКЗ повинна суворо відповідати наступним стандартам:
+\begin{enumerate}
+    \item \textbf{Базова архітектура та транспорт WebRTC}:
+    \begin{itemize}
+        \item RFC 8825 (WebRTC Architecture) та RFC 8835 (WebRTC Transports);
+        \item RFC 8829 (JavaScript Session Establishment Protocol - JSEP) для обміну SDP Offer/Answer;
+        \item RFC 4960 / RFC 8261 (SCTP over DTLS) для надійного та ненадійного обміну даними в Data Channels;
+        \item RFC 3711 (SRTP) та RFC 5763 / RFC 5764 (DTLS-SRTP) для шифрування медіа-потоків.
+    \end{itemize}
+    \item \textbf{Мережеве проходження (NAT Traversal)}:
+    \begin{itemize}
+        \item RFC 5245 (ICE) для інтерактивного встановлення з'єднання;
+        \item RFC 8489 (STUN) для визначення публічних адрес;
+        \item RFC 8656 (TURN Extensions) для ретрансляції медіа-трафіку через проксі.
+    \end{itemize}
+    \item \textbf{Кодеки та мультиплексування}:
+    \begin{itemize}
+        \item ITU-T H.264 (ISO/IEC 14496-10) та ITU-T H.265 (ISO/IEC 23008-2) для стиснення відео;
+        \item RFC 6716 (Opus Audio Codec) та RFC 7587 (Opus RTP Payload) для передачі високоякісного звуку;
+        \item RFC 3550 / RFC 3551 (RTP/RTCP) для синхронізації аудіо- та відеопотоків у часі;
+        \item RFC 4585 (RTP/AVPF) для швидкого зворотного зв'язку про втрату пакетів (RTCP Feedback).
+    \end{itemize}
+    \item \textbf{Протокол реального часу телеметрії}:
+    \begin{itemize}
+        \item RFC 6455 (The WebSocket Protocol) для низьколатентної двосторонньої передачі телеметричних даних.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Вимоги до процесів}
+
+\subsubsection{Створення та управління конференцією}
+Процес ініціалізації кімнати, запрошення та авторизації учасників через Електронний Суд, виведення учасників на трибуну, керування пристроями (камера/мікрофон) та примусового закриття сесій, що тривають більше доби.
+
+\subsubsection{Синхронізація сигналізації через Redis}
+Асинхронний обмін повідомленнями WebRTC SDP та ICE-кандидатами між інстансами сигнальних серверів за допомогою Redis Pub/Sub для підтримки високої кількості одночасних підключень.
+
+\subsubsection{Офлайн фіксація судового процесу}
+Локальний запис відеофонограми та дій секретаря за допомогою важкого клієнта на Flutter, формування локального тимчасового протоколу та черги для синхронізації.
+
+\subsubsection{Синхронізація офлайн архівів з S3}
+Автоматичне вивантаження записаних локально медіафайлів та дій протоколу з важкого клієнта до сховища Scality S3 після відновлення мережевого підключення до Інтернету.
+
+\subsubsection{Пакетне збереження дій секретаря}
+Накопичення логу дій по протоколу в локальному сховищі браузера (localStorage) з подальшим пакетним збереженням у PostgreSQL за розкладом або при досягненні ліміту дій для зниження навантаження на БД.
+
+\subsubsection{Прямий стрімінг відеофонограм}
+Онлайн перегляд відеозаписів судових засідань з підтримкою часових міток безпосередньо через Nginx-фронтенд зі сховища Scality S3 в обхід PHP-процесів.
+
+\subsubsection{Балансування та автоскейлінг}
+Динамічне збільшення/зменшення кількості подів PHP та Nginx в Kubernetes на основі завантаження процесору, а також автоматичне переключення запитів «тільки на читання» на standby-репліку бази даних.
+
+\subsubsection{Автоматичне очищення історичних даних}
+Щомісячний запуск завдання з видалення логів дій по підписаних протоколах, від дати підписання яких пройшло більше 3 місяців.
+
+\section{Журнали}
+
+\newpage
+\section*{Вступна частина}
+
+\subsection*{Умовні скорочення та визначення}
+
+Терміни та скорочення, що використовуються в документі:
+
+\begin{longtable}{p{4cm}p{10cm}}
+\toprule
+\textbf{Термін} & \textbf{Значення} \\
+\midrule
+API & Автоматизовані програмні інтеграції, відомі також як “прикладний інтерфейс програмування – application programming interface” \\
+БД & База Даних — Організована колекція даних, яка зберігається та управляється з використанням комп'ютерної системи; забезпечує зберігання, організацію та доступ до даних з метою ефективного використання та обробки \\
+БП & Бізнес Процес — Сукупність дій необхідних для здійснення людиною або системою, в результаті яких відбувається досягнення бажаного результату \\
+КЕП & Кваліфікований електронний підпис (X.509) \\
+ЄСІКС & Єдина судова інформаційно-комунікаційна система \\
+\bottomrule
+\end{longtable}
+
+\subsection*{Загальні положення}
+
+Технічні вимоги на основі «Концепції ЄСІКС» від 2024 року \cite{esiks} і API судової системи ЄДРСР\cite{eCourt}.
+
+\newpage
+\section*{Висновок}
+
+\begin{thebibliography}{9}
+
+\bibitem{ecoz:rehab} Міністерство охорони здоров’я України. \newblock Технічні вимоги Реабілітація 2.0. \newblock Версія 08.08.2024.
+\bibitem{dstu:3973} ДСТУ 3973-2000. \newblock Система розроблення та постачання продукції на виробництво. Правила виконання науково-дослідних робіт. Загальні положення.
+\bibitem{dstu:3974} ДСТУ 3974-2000. \newblock Система розроблення та постачання продукції на виробництво. Правила виконання науково-конструкторських робіт. Загальні положення.
+\bibitem{dstu:42010} ДСТУ 42010:2018. \newblock Інженерія систем і програмних засобів. Опис архітектури.
+\bibitem{law:info-protection} Закон України «Про захист інформації в інформаційно-телекомунікаційних системах».
+\bibitem{law:personal-data} Закон України «Про захист персональних даних».
+\bibitem{law:cybersecurity} Закон України «Про основні засади забезпечення кібербезпеки України».
+\bibitem{owasp:top10} OWASP Foundation. \newblock OWASP Top 10: The Ten Most Critical Web Application Security Risks. \newblock \url{https://owasp.org/www-project-top-ten/}.
+\bibitem{nist:sp800-57} NIST Special Publication 800-57 Part 1 Revision 5. \newblock Recommendation for Key Management.
+\bibitem{iso:42010} ISO/IEC/IEEE 42010:2022. \newblock Systems and software engineering — Architecture description.
+\bibitem{zachman} Zachman, J.A. \newblock A Framework for Information Systems Architecture. \newblock IBM Systems Journal, 1987.
+
+\end{thebibliography}
+
+\end{document}

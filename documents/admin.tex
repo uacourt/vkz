@@ -1,0 +1,185 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage{helvet}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{eso-pic}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage[english, ukrainian]{babel}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\definecolor{nato}{HTML}{293757}
+\definecolor{footergray}{gray}{0.65}
+
+\geometry{a4paper,left=3cm,right=3cm,top=3cm,bottom=3cm}
+\renewcommand{\familydefault}{\sfdefault}
+\setcounter{secnumdepth}{3}
+
+\titleformat{\section}
+  {\color{nato}\Huge\bfseries}{\thesection.}{1em}{}
+\titlespacing*{\section}{0pt}{30pt}{12pt}
+
+\titleformat{\subsection}
+  {\color{nato}\LARGE\bfseries}{\thesubsection.}{1em}{}
+\titlespacing*{\subsection}{0pt}{20pt}{8pt}
+
+\titleformat{\subsubsection}
+  {\color{nato}\Large\bfseries}{\thesubsubsection.}{1em}{}
+\titlespacing*{\subsubsection}{0pt}{10pt}{6pt}
+
+\fancyhf{}
+\fancyhead[R]{\small\color{footergray} 23 червня 2026}
+\fancyfoot[L]{\small\color{footergray} Інструкція користувача та адміністратора підсистеми ВКЗ ЄСІТС}
+\fancyfoot[R]{\small\color{footergray}\thepage}
+
+\newcommand\HUGE[1]{\fontsize{40}{40}\selectfont #1}
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footrule}{\color{footergray}\hrule width \textwidth height 0.4pt}
+
+\begin{document}
+
+\pagestyle{fancy}
+
+\begin{titlepage}
+  \AddToShipoutPictureBG*{\AtPageLowerLeft{\color{nato}\rule{\paperwidth}{\paperheight}}}
+  \color{white}\thispagestyle{empty}\vspace*{3cm}\centering
+  {\Huge  \textbf{ПОСІБНИК АДМІНІСТРАТОРА} \par} \vspace{1.5cm}
+  {\HUGE  \textbf{Адміністрування підсистеми відеоконференцзв’язку} \par} \vspace{2cm}
+  {\LARGE \textbf{Налаштування мережевих портів, медіа-трактів WebRTC, \\ прямого стрімінгу та вбудованої телеметрії} \par} \vspace{1cm}
+  {\large\textbf{Офіційна технічна редакція} \par}
+  \vfill
+  {\large 2026 \copyright\ ДП «Інформаційні судові системи» \par}
+\end{titlepage}
+
+\newpage
+\thispagestyle{empty}
+\begin{center}
+  {\Large\color{nato}\bfseries ЛИСТ ЗАТВЕРДЖЕННЯ ТА КОНТРОЛЮ ВЕРСІЙ\par}
+\end{center}
+\vspace{20pt}
+
+\begin{longtable}{@{}p{4.0cm}p{10.2cm}@{}}
+\toprule
+\textbf{Реквізит документа} & \textbf{Значення та відомості} \\
+\midrule
+\textbf{Назва документа} & Інструкція адміністратора підсистеми ВКЗ ЄСІТС \\
+\textbf{Об'єкт} & Підсистема відеоконференцзв’язку Єдиної судової інформаційно-комунікаційної системи \\
+\textbf{Версія документа} & v1.0.0 \\
+\textbf{Дата затвердження} & 23.06.2026 \\
+\textbf{Статус документа} & Затверджено та впроваджено \\
+\textbf{Відповідність стандартам} & RFC 8825, RFC 8829 (JSEP), RFC 8835, RFC 6455, ITU-T H.264/H.265 \\
+\textbf{Розробники} & Департамент розробки ДП \\
+\bottomrule
+\end{longtable}
+
+\newpage
+\begin{center}
+  {\Huge\color{nato}\bfseries Зміст\par}
+\end{center}
+\vspace{40pt}
+\tableofcontents
+
+\newpage
+
+\section{Загальний опис та архітектура підсистеми ВКЗ}
+Підсистема відеоконференцзв’язку (ВКЗ) є невід’ємною частиною Єдиної судової інформаційно-комунікаційної системи (ЄСІТС) України. Вона забезпечує проведення дистанційних судових засідань у режимі реального часу, інтеграцію з кабінетом «Електронного Суду», запис та протоколювання ходу засідань, а також надійне збереження відеофонограм.
+
+Ця інструкція призначена для системних адміністраторів, мережевих інженерів та кінцевих користувачів (секретарів судового засідання, суддів, учасників справ) і визначає технічні аспекти функціонування медіа-трактів, налаштування мережевого екрану, інтеграцію прямого стрімінгу та вбудованої телеметрії.
+
+\section{Стандарти та протоколи медіа-трактів}
+Сумісність і надійність трансляції медіапотоків забезпечується суворим дотриманням міжнародних стандартів:
+\begin{itemize}
+    \item \textbf{WebRTC Core}: 
+    \begin{itemize}
+        \item \textbf{RFC 8825} (WebRTC Architecture) --- визначає загальну архітектуру та вимоги до вузлів;
+        \item \textbf{RFC 8829} (JavaScript Session Establishment Protocol --- JSEP) --- регламентує обмін SDP Offer/Answer;
+        \item \textbf{RFC 8835} (WebRTC Transports) --- визначає вимоги до транспортного рівня;
+        \item \textbf{RFC 4960 / RFC 8261} (SCTP over DTLS) --- забезпечує передачу даних (Data Channels);
+        \item \textbf{RFC 3711} (SRTP) та \textbf{RFC 5763 / 5764} (DTLS-SRTP) --- гарантують безпеку медіапотоків.
+    \end{itemize}
+    \item \textbf{Кодеки та Мультиплексування}:
+    \begin{itemize}
+        \item \textbf{ITU-T H.264 / ISO/IEC 14496-10} (AVC) та \textbf{ITU-T H.265 / ISO/IEC 23008-2} (HEVC) --- стиснення відео;
+        \item \textbf{RFC 6716 / RFC 7587} --- високоякісний аудіокодек Opus;
+        \item \textbf{RFC 3550 / RFC 3551} (RTP/RTCP) --- доставка та синхронізація потоків у часі;
+        \item \textbf{RFC 4585} (RTP/AVPF) --- зворотний зв'язок щодо втрат пакетів.
+    \end{itemize}
+\end{itemize}
+
+\section{Мережеві налаштування та порти TURN/STUN}
+Для успішного встановлення з'єднань WebRTC у закритих судових мережах та проходження через NAT/Firewall використовуються STUN/TURN сервери. Адміністраторам мережі суду необхідно дозволити наступні мережеві порти:
+\begin{itemize}
+    \item \textbf{STUN} (RFC 8489):
+    \begin{itemize}
+        \item Порт \textbf{3478 UDP/TCP} --- стандартний порт для запитів STUN;
+    \end{itemize}
+    \item \textbf{TURN} (RFC 8656):
+    \begin{itemize}
+        \item Порт \textbf{3478 UDP/TCP} --- ретрансляція трафіку без шифрування;
+        \item Порт \textbf{5349 UDP/TCP} --- захищене TURN-з'єднання (TURNS);
+        \item Додаткові порти \textbf{8443, 8444, 80, 443 TCP} --- використовуються для обходу брандмауерів із глибоким інспектуванням пакетів (DPI).
+    \end{itemize}
+    \item \textbf{WebRTC Media Ports}:
+    \begin{itemize}
+        \item Діапазон портів \textbf{40000--65535 UDP} --- динамічні порти для RTP/RTCP медіа-трафіку між клієнтом та OpenVidu.
+    \end{itemize}
+\end{itemize}
+
+Адреси серверів TURN: \texttt{turn.court.gov.ua}, а також пул від \texttt{turn1.court.gov.ua} до \texttt{turn10.court.gov.ua}.
+
+\section{Прямий стрімінг та доступ до архівів (Nginx + Scality S3)}
+Для зменшення навантаження на сервери застосунків PHP (Backend Scale Pods), онлайн-перегляд відеофонограм (файлів MP4) та підписаних PDF-протоколів здійснюється за технологією прямого стрімінгу (direct streaming).
+
+\subsection{Архітектурні особливості}
+Фронтенд-сервери Nginx (Frontend Scale Pods) звертаються безпосередньо до об'єктного сховища Scality S3 через протокол HTTP REST API. Запити клієнтів проксуються в обхід PHP-процесів, що забезпечує стабільну роботу інтерфейсу під час пікових навантажень.
+
+\subsection{Налаштування часових міток (Seek та Ranges)}
+Для можливості перегляду відеозапису з певної часової мітки (клік по дії у протоколі) Nginx налаштований на підтримку HTTP-заголовків \texttt{Range} (RFC 7233). Це дозволяє браузеру здійснювати запит фрагментів файлу та відтворювати відеофонограму з будь-якого моменту без повного завантаження файлу на пристрій користувача.
+
+\section{Вбудована система телеметрії на вебсокетах (RFC 6455)}
+Система проактивного моніторингу використовує вбудований у веб-клієнт та Flutter-клієнт модуль збору метрик.
+
+\subsection{Формат та склад метрик}
+Клієнтський додаток через WebRTC Statistics API зчитує та передає по WSS (RFC 6455) на Telemetry Collector Node наступні дані:
+\begin{itemize}
+    \item \textbf{ICE Connection State} --- статус з'єднання (connected, disconnected, failed);
+    \item \textbf{Signaling State} --- стан обміну SDP;
+    \item \textbf{Packet Loss} --- відсоток втрачених пакетів (audio/video);
+    \item \textbf{Jitter} --- тремтіння затримки пакетів;
+    \item \textbf{RTT (Round-Trip Time)} --- час кругового обходу мережевого пакета;
+    \item \textbf{Bitrate} --- поточна швидкість передачі медіа;
+    \item \textbf{CPU \& Memory Load} --- навантаження на пристрій користувача.
+\end{itemize}
+
+\subsection{Синхронізація логів}
+Агреговані дані з Telemetry Collector Node надсилаються в ELK (Elasticsearch, Logstash, Kibana) для візуалізації трендів та Zabbix для миттєвого реагування на проблеми (RTT > 250мс, Packet Loss > 5\%).
+
+\section{Робота з важким клієнтом фіксації засідань (Flutter Offline Client)}
+При проведенні засідань в умовах відсутності або нестабільності мережі Інтернет використовується автономний Flutter-клієнт.
+
+\subsection{Локальне збереження та БД}
+Flutter-клієнт використовує локальну реляційну базу даних (SQLite) для фіксації логу дій секретаря та метаданих засідання. Відеофонограма пишеться локально у форматі MP4 з кодуванням H.264/Opus.
+
+\subsection{Інтеграція з BlackMagic та OBS}
+Клієнт здійснює захоплення відео через SDK плат BlackMagic DeckLink або за допомогою WebSocket API інтеграції з OBS Studio. Це забезпечує професійну якість аудіо та відео з декількох камер.
+
+\subsection{Синхронізація з Scality S3}
+Після відновлення стабільного Інтернет-з'єднання клієнт запускає фоновий процес синхронізації, який частинами (Multipart Upload) завантажує локальний MP4-запис та дії протоколу до об'єктного сховища Scality S3 і бази даних PostgreSQL 16.
+
+\section{Адміністрування та обслуговування}
+Адміністраторам підсистеми необхідно контролювати стан подів сигнального сервера, налаштованих у декілька інстансів із синхронізацією через Redis Pub/Sub, а також працездатність standby-копії PostgreSQL 16 на РЦОД. Щомісяця автоматичний планувальник видаляє логи закритих і підписаних протоколів старше 3 місяців для оптимізації розміру БД.
+
+\end{document}

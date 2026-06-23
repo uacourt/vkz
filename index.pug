@@ -1,0 +1,133 @@
+include header
+
+html
+    head
+        meta(property='og:title'       content='ЄСІКС')
+        meta(property='og:description' content='Єдина Судова Інформаційно-комунікаційна Система')
+        meta(property='og:url'         content='https://uacourt.org/')
+
+block title
+    title ЄСІКС
+
+block content
+    article.main
+        .exe
+            section
+            p(style="font-size: 14px;").
+                Тут представлені звіти активностей процесу виробництва ISO-9001
+                Єдиної Судової Інформаційно-комунікаційної Системи (ЄСІКС)
+                або Unified Court Information Communication System (UCICS),
+                яка складається з 10 розділів розділених на 2 книги.
+
+        br
+        <hr size=1>
+        br
+        .exe
+            section
+            h1 ВІДЕОКОНФЕРЕНЦЗВ'ЯЗОК
+            p.
+                Процес модернізації та супроводу підсистеми ВКЗ включає наступні компоненти:
+
+        .types
+            -
+                var structure = {
+                    'Аналіз': {
+                        'Цілі та результати': 'okr/okr.pdf',
+                        'Безпека': 'https://ca.n2o.dev/priv/legal_l3_profile_erp.pdf',
+                        'Політики': 'policy/policy.pdf',
+                        'Технічні вимоги': 'requirement/business.pdf'
+                    },
+                    'Впровадження': {
+                        'Технічні завдання': 'specifications/specifications.pdf',
+                        'Референсні імплементації': 'implementation/',
+                        'Система контролю якості': 'quality/'
+                    },
+                    'Підтримка': {
+                        'Посібник користувача ВКЗ': 'documents/instructions.pdf',
+                        'Посібник адміністратора ВКЗ': 'documents/admin.pdf',
+                        'Система реагування на інциденти': '',
+                        'Система телеметрії': 'telemetry/'
+                    }
+                };
+            .type
+                for v, k in structure
+                    ol.type__col
+                        h3= k
+                        for j, i in v
+                            li(style="font-size:14px;")
+                                a(href= j)= i
+
+        br
+        .exe
+            section
+
+        br
+        .exe
+            section
+
+            h2 ЦІЛІ ТА РЕЗУЛЬТАТИ
+            p.
+                Стратегічне планування розробки та модернізації підсистеми ВКЗ на період Q3-Q4 2026 року здійснюється за методологією OKR (Objectives and Key Results) з інтеграцією стандартів управління проектами ISO 21502:2020 та управління якістю ISO 9001:2015.
+            div(style="padding-top: 8px;")
+                img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
+                a(href="okr/okr.pdf") &nbsp; Цілі та результати проєкту ЄСІКС (OKR)
+
+            h2 БЕЗПЕКА
+            p.
+                Впровадження комплексних заходів захисту інформації згідно з профілями безпеки NIST SP 800-53B та НД ТЗІ 3.6-006-24. Архітектура передбачає імплементацію Опорного монітора (Reference Monitor) для забезпечення неможливості обходу політик доступу.
+            div(style="padding-top: 8px;")
+                img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
+                a(href="https://ca.n2o.dev/priv/legal_l3_profile_erp.pdf") &nbsp; Цільовий профіль безпеки підсистеми ВКЗ
+
+            h2 ПОЛІТИКИ
+            p.
+                Базові архітектурні, методологічні та нефункциональні мета-правила розробки, які регламентують створення та розвиток усіх підсистем ЄСІКС.
+            div(style="padding-top: 8px;")
+                img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
+                a(href="policy/policy.pdf") &nbsp; Політики проєкту ЄСІКС
+
+            h2 ВИМОГИ
+            p.
+                Том VIII-5 деталізує функціональні та технологічні вимоги до підсистеми ВКЗ. Протоколи та медіа-тракти спроектовано відповідно до міжнародних галузевих стандартів:
+                <b>Транспорт та сигналізація WebRTC:</b> RFC 8825 (архітектура), RFC 8829 (JSEP для SDP Offer/Answer), RFC 8835 (транспорт), RFC 4960/8261 (SCTP over DTLS), RFC 3711 (SRTP) та RFC 5763/5764 (DTLS-SRTP).
+                <b>Мережеве проходження (NAT Traversal):</b> RFC 5245 (ICE), RFC 8489 (STUN), RFC 8656 (TURN).
+                <b>Кодеки та синхронізація потоків:</b> ITU-T H.264 (ISO/IEC 14496-10), ITU-T H.265 (ISO/IEC 23008-2) для відео, RFC 6716/7587 (Opus) для аудіо, RFC 3550/3551 (RTP/RTCP) та RFC 4585 (RTP/AVPF Feedback).
+                <b>Вбудована телеметрія:</b> Протокол реального часу WebSocket Secure (WSS, RFC 6455).
+            div(style="padding-top: 8px;")
+                img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
+                a(href="requirement/business.pdf") &nbsp; Том VIII: Бізнес, аналіз і звітність (Вимоги ВКЗ)
+            br
+
+            h2 ТЕХНІЧНІ ЗАВДАННЯ
+            p.
+                Детальні технічні специфікації для інтеграції медіасерверів OpenVidu 3.2.0, налаштування Redis Pub/Sub для горизонтального масштабування сигнальних серверів та розгортання в Kubernetes.
+
+            h2 ТЕХНОРОБОЧИЙ ПРОЄКТ
+            p.
+                Шаблони інтеграції для SPA/PWA веб-клієнтів та важкого клієнта фіксації засідань на Flutter (Flutter Offline Client), який підтримує локальну БД SQLite, роботу з платами BlackMagic/OBS та автовивантаження архівів на Scality S3.
+            br
+            img(src="arch.png", width=600)
+
+            br
+
+            h2 ПОСІБНИКИ
+            p.
+            div(style="padding-top: 8px;")
+                img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
+                a(href="documents/instructions.pdf") &nbsp; Інструкція користувача
+            br
+            p.
+                Інструкції щодо налаштування мережевих екранів у судах (відкриття портів STUN 3478 UDP/TCP, TURN 3478/5349/8443/8444 UDP/TCP), конфігурації медіа-трактів та підключення обладнання. Також описано логіку прямого стрімінгу через Nginx-фронтенди зі сховища Scality S3 з підтримкою Ranges для перегляду за таймстампами.
+            div(style="padding-top: 8px;")
+                img(src="https://anders.groupoid.space/images/pdf.jpg", width="35")
+                a(href="documents/admin.pdf") &nbsp; Інструкція адміністратора підсистеми ВКЗ
+
+            h2 ТЕЛЕМЕТРІЯ
+            p.
+                Вбудована система телеметрії на вебсокетах (RFC 6455) для передачі клієнтських метрик WebRTC Statistics API (стан ICE, RTT, джитер, втрата пакетів, навантаження CPU) у реальному часі на Telemetry Collector Node для подальшого аналізу в ELK та сповіщень у Zabbix.
+            div(style="padding-top: 8px;")
+                a(href="telemetry/") &nbsp; Панель моніторингу вбудованої телеметрії
+        br
+
+    hr
+    include footer
