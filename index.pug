@@ -126,9 +126,14 @@ block content
 
             h2 ТЕЛЕМЕТРІЯ
             p.
-                Вбудована система телеметрії на вебсокетах (RFC 6455) для передачі клієнтських метрик WebRTC Statistics API (стан ICE, RTT, джитер, втрата пакетів, навантаження CPU) у реальному часі на Telemetry Collector Node для подальшого аналізу в ELK та сповіщень у Zabbix.
+                Grafana, Prometheus, OpenTelemetry, OpenSearch у складі ЄСІКС кластеру Kubernetes.
             div(style="padding-top: 8px;")
-                a(href="telemetry/") &nbsp; Панель моніторингу телементрії ВКЗ
+                a(href="documents/deployment.pdf") &nbsp; Вимоги до архітектури ЦОД
+            p.
+                Вбудована система телеметрії на вебсокетах (RFC 6455) для передачі клієнтських метрик WebRTC Statistics API (стан ICE, RTT,
+                джитер, втрата пакетів, навантаження CPU) у реальному часі на Telemetry Collector Node для подальшого аналізу в OpenSearch та сповіщень у Zabbix.
+            div(style="padding-top: 8px;")
+                a(href="documents/sre.pdf") &nbsp; Настанови системного адміністратора ЦОД
         br
 
     hr
