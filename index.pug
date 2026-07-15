@@ -1,10 +1,14 @@
-include header
+extends header
 
-html
-    head
-        meta(property='og:title'       content='ЄСІКС — ВКЗ')
-        meta(property='og:description' content='Єдина Судова Інформаційно-комунікаційна Система — Відеоконференцзв\'язок')
-        meta(property='og:url'         content='https://vkz.ujics.com')
+block vars
+    - var activeMenu = 'vkz'
+    - var headerTitle = 'ВКЗ'
+    - var headerSubtitle = 'Відеоконференцзв\'язок'
+
+block head_extra
+    meta(property='og:title'       content='ЄСІКС — ВКЗ')
+    meta(property='og:description' content='Єдина Судова Інформаційно-комунікаційна Система — Відеоконференцзв\'язок')
+    meta(property='og:url'         content='https://vkz.ujics.com')
 
 block title
     title ЄСІКС — ВКЗ

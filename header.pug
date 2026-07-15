@@ -20,11 +20,13 @@ mixin tex2(center=false, paragraph=true)
 mixin code
     code!= highlight(`${block}`)
 
-mixin header(logo, title, subtitle)
-    header.header
-        .header__titles
-            h1.header__title!= title
-            h4.header__subtitle!= subtitle
+//- Sane menu structure for UJICS subsites
+-
+  var menuItems = [
+    { id: 'ujics', title: 'ЄСІКС', url: 'https://uacourt.github.io/ujics/' },
+    { id: 'vkz', title: 'ВКЗ', url: 'https://uacourt.github.io/vkz/' },
+    { id: 'ai', title: 'ШІ', url: 'https://uacourt.github.io/ai/' }
+  ]
 
 doctype html
 html
@@ -58,6 +60,11 @@ html
         link(rel='icon' type='image/png' sizes='16x16'    href='https://anders.groupoid.space/images/favicon-16x16.png')
         link(rel='manifest' href='https://anders.groupoid.space/images/manifest.json')
 
+        block title
+            title ЄСІКС
+
+        block head_extra
+
         style.
             svg a{fill:blue;stroke:blue}
             [data-mml-node="merror"]>g{fill:red;stroke:red}
@@ -69,4 +76,23 @@ html
 
     body.content
         block vars
+            - var activeMenu = 'ujics'
+            - var headerTitle = 'ЄСІКС'
+            - var headerSubtitle = 'Єдина Судова Інформаційно-комунікаційна Система'
+
+        nav
+            each item in menuItems
+                a(href=item.url class=(activeMenu === item.id ? 'active' : ''))= item.title
+
+        header.header
+            svg.header__logo(viewBox="0 0 30 40" fill="none" stroke="#268BD2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                path(d="M15 4v32M15 4L11 9h8L15 4z")
+                path(d="M11 9C8 12 5 16 5 21v7c0 4 3 7 7 8V18")
+                path(d="M19 9c3 3 6 7 6 12v7c0 4-3 7-7 8V18")
+                path(d="M9 30h12")
+            .header__titles
+                h1.header__title!= headerTitle
+                h4.header__subtitle!= headerSubtitle
+
         block content
+
