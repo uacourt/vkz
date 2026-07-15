@@ -85,11 +85,6 @@ html
                 a(href=item.url class=(activeMenu === item.id ? 'active' : ''))= item.title
 
         header.header
-            svg.header__logo(viewBox="0 0 30 40" fill="none" stroke="#268BD2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
-                path(d="M15 4v32M15 4L11 9h8L15 4z")
-                path(d="M11 9C8 12 5 16 5 21v7c0 4 3 7 7 8V18")
-                path(d="M19 9c3 3 6 7 6 12v7c0 4-3 7-7 8V18")
-                path(d="M9 30h12")
             .header__titles
                 h1.header__title!= headerTitle
                 h4.header__subtitle!= headerSubtitle
