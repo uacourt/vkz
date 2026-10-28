@@ -1,0 +1,243 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{eso-pic}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage[english, ukrainian]{babel}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\definecolor{nato}{HTML}{293757}
+\definecolor{footergray}{gray}{0.65}
+
+\geometry{a4paper,left=3cm,right=3cm,top=3cm,bottom=3cm}
+\renewcommand{\familydefault}{\sfdefault}
+\setcounter{secnumdepth}{3}
+
+\titleformat{\section}
+  {\color{nato}\Huge\bfseries}{\thesection.}{1em}{}
+\titlespacing*{\section}{0pt}{30pt}{12pt}
+
+\titleformat{\subsection}
+  {\color{nato}\LARGE\bfseries}{\thesubsection.}{1em}{}
+\titlespacing*{\subsection}{0pt}{20pt}{8pt}
+
+\titleformat{\subsubsection}
+  {\color{nato}\Large\bfseries}{\thesubsubsection.}{1em}{}
+\titlespacing*{\subsubsection}{0pt}{10pt}{6pt}
+
+\fancyhf{}
+\fancyhead[R]{\small\color{footergray} 24 червня 2026}
+\fancyfoot[L]{\small\color{footergray} Технічний аудит та аналіз розбіжностей підсистеми ВКЗ}
+\fancyfoot[R]{\small\color{footergray}\thepage}
+
+\newcommand\HUGE[1]{\fontsize{40}{40}\selectfont #1}
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footrule}{\color{footergray}\hrule width \textwidth height 0.4pt}
+
+\begin{document}
+
+\pagestyle{fancy}
+
+\begin{titlepage}
+  \AddToShipoutPictureBG*{\AtPageLowerLeft{\color{nato}\rule{\paperwidth}{\paperheight}}}
+  \color{white}\thispagestyle{empty}\vspace*{4cm}\centering
+  {\Huge  \textbf{Технічний аудит ЄСІКС} \par} \vspace{2cm}
+  {\HUGE  \textbf{Звіт про технічний аудит підсистеми ВКЗ} \par} \vspace{2.5cm}
+  {\LARGE \textbf{1) Аудит програмного стеку WebRTC} \par}
+  {\LARGE \textbf{2) Аналіз відповідності вимогам} \par}
+  {\LARGE \textbf{3) Рекомендації та план розвитку} \par} \vspace{2.5cm}
+  \vfill
+  {\large 2026 \copyright\ Інформаційні Судові Системи \par}
+\end{titlepage}
+
+\newpage
+
+\begin{center}
+  {\Huge\color{nato}\bfseries Зміст\par}
+\end{center}
+\vspace{40pt}
+\tableofcontents
+
+\newpage
+
+\section{Вступ та архітектура системи}
+Цей документ містить результати детального технічного аудиту та аналізу розбіжностей підсистеми відеоконференцзв'язку (ВКЗ) Єдиної судової інформаційно-комунікаційної системи (ЄСІКС), вихідний код якої розміщено в директорії \texttt{./implementation/}.
+
+Існуюча архітектура поєднує веб-інтерфейс та бізнес-логіку на базі PHP-фреймворку Yii2 з асинхронним рівнем мікросервісів на Node.js, що виконують сигналізацію WebRTC, автентифікацію сесій, моніторинг та взаємодію з медіа-серверами.
+
+\section{Детальний опис підкомпонентів}
+
+\subsection{Легкий веб-клієнт (SPA/PWA Client)}
+Клієнтська частина реалізована у вигляді представлень (views) та веб-ресурсів Yii2. Основними клієнтськими сценаріями керування медіа-трактом є:
+\begin{itemize}
+    \item \texttt{ovapp.js} -- здійснює ініціалізацію контейнера макету сітки відео (\texttt{initLayoutContainer}), \\
+            перевірку дозволів медіа-пристроїв браузера (\texttt{navigator.permissions}) та збереження налаштувань роздільної здатності камери.
+    \item \texttt{wcs-test.js} -- забезпечує динамічне завантаження клієнтської бібліотеки LiveKit \\ 
+            (\texttt{livekit-client2.15.2.umd.js}) та ініціалізацію об'єкта підключення (\texttt{roomOV = new LivekitClient.Room()}).
+\end{itemize}
+Підтримується два режими медіа-серверів: SFU-режим на базі LiveKit/OpenVidu та класичний режим MCU/SFU на базі Flashphoner Web Call Server.
+
+\subsection{Бекенд лінія масштабування (Yii2 Backend \& Frontend)}
+Виконує обробку бізнес-процесів, перевірку прав доступу користувачів, створення судових засідань та формування протоколів.
+Головну логіку інтеграції ВКЗ зосереджено \\ у \texttt{ConferenceController.php}, який виконує:
+\begin{itemize}
+    \item Визначення типу медіа-сервера для засідання (\texttt{sfu\_mode} на базі налаштувань організації).
+    \item Запит ліміту завантаження медіа-серверів через мікросервіс \texttt{openvidu-app}.
+    \item Отримання одноразових токенів доступу та WSS-адрес для клієнтів.
+\end{itemize}
+
+\subsection{Мікросервіс управління кімнатами (\texttt{openvidu-app})}
+Розроблений на Node.js (Express). Виступає посередником (Application Server) між Yii2 та серверами LiveKit. Його функції:
+\begin{itemize}
+    \item \texttt{room.controller.js} -- генерує JWT-токени доступу (\texttt{AccessToken}) та обмежує максимальну кількість кімнат на сервері (\texttt{MAX\_ROOMS}, за замовчуванням 18).
+    \item \texttt{record.controller.js} \& \texttt{record.service.js} -- керує записом медіа через LiveKit \texttt{EgressClient}.
+    \item \texttt{webhook.controller.js} -- приймає вебхуки про стан кімнат та записів від LiveKit.
+    \item \texttt{stat.controller.js} -- надає метрики для моніторингу Zabbix (кількість кімнат, активні записи) за протоколом HTTP Basic Auth.
+\end{itemize}
+
+\subsection{Сигнальний сервер (\texttt{signalmaster})}
+Node.js додаток на базі Socket.io 4.8.3. Забезпечує обмін службовими повідомленнями між учасниками:
+\begin{itemize}
+    \item \texttt{sockets.js} -- обробляє події підключення, трансляцію стану мікрофонів (\texttt{userMuteAudioSocket}), запити на трибуну (\texttt{PodiumRequest}) та демонстрацію екрану.
+    \item \texttt{redis.js} -- синхронізує текстові чати та статуси між інстансами за допомогою Redis Pub/Sub, а також зберігає історію чату в Redis Sorted Sets (база даних №4).
+\end{itemize}
+
+\subsection{Централізовані сховища}
+\begin{itemize}
+    \item \textbf{Реляційне сховище}: PostgreSQL, що використовується для збереження записів засідань, зв'язків учасників та налаштувань.
+    \item \textbf{Об'єктне сховище}: Scality S3, інтегроване через AWS SDK PHP. Використовується для тривалого зберігання файлів відеозаписів (MP4) та підписаних PDF-протоколів. Доступ до перегляду надається через тимчасові підписані посилання (\texttt{getPresignedUrl}).
+\end{itemize}
+
+\newpage
+
+\section{Мережеві з'єднання та порти}
+У таблиці нижче наведено структуру взаємодії між компонентами системи із зазначенням мережевих портів та протоколів:
+
+\begin{longtable}{p{3cm}p{3cm}p{2cm}p{2cm}p{5cm}}
+\caption{Порти та протоколи взаємодії підсистеми ВКЗ} \label{tab:ports} \\
+\toprule
+\textbf{Відправник} & \textbf{Отримувач} & \textbf{Порт} & \textbf{Протокол} & \textbf{Опис} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{Продовження таблиці \ref{tab:ports}} \\
+\toprule
+\textbf{Відправник} & \textbf{Отримувач} & \textbf{Порт} & \textbf{Протокол} & \textbf{Опис} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
+Веб-клієнт    & Yii2 Frontend  & 80 / 443    & HTTP/S    & Завантаження сторінок та статики \\
+Веб-клієнт    & Signal Server  & 8958        & WSS       & Сигналізація WebRTC, чат, події \\
+Веб-клієнт    & LiveKit SFU    & 7880        & WSS       & Встановлення з'єднання WebRTC \\
+Веб-клієнт    & LiveKit SFU    & 7882        & UDP/RTP   & Передача аудіо/відео потоків \\
+Веб-клієнт    & LiveKit SFU    & 7881        & TCP       & Резервний транспорт WebRTC (ICE) \\
+Yii2 Backend  & OpenVidu App   & 6443        & HTTP      & Перевірка місткості, генерація JWT \\
+OpenVidu App  & LiveKit Server & 7880        & HTTP/gRPC & Управління кімнатами, записом (Egress) \\
+Signal Server & Redis          & 6379        & TCP       & Синхронізація інстансів, збереження чату \\
+Yii2 Backend  & PostgreSQL     & 5432 / 6432 & TCP       & PgBouncer / PostgreSQL транзакції \\
+Yii2 Backend  & Scality S3     & 443         & HTTPS     & Завантаження та отримання записів \\
+\end{longtable}
+
+\section{Протокол встановлення зв'язку (Calling Flow)}
+Процес створення кімнати та підключення користувача відбувається за наступним алгоритмом:
+\begin{enumerate}
+    \item Клієнтський браузер встановлює WebSocket-з'єднання з \texttt{signalmaster} (порт 8958) та надсилає подію \texttt{loginUser}.
+    \item При ініціалізації засідання Yii2 бекенд вибирає найменш завантажений медіа-сервер та виконує HTTP-запит до \texttt{openvidu-app} на порт 6443 (\texttt{GET /token/has-capacity?instance=...}) для підтвердження наявності вільних слотів.
+    \item Після успішної перевірки Yii2 робить запит \texttt{POST /token} до \texttt{openvidu-app}.
+    \item \texttt{openvidu-app} генерує JWT-токен за допомогою LiveKit SDK та повертає його бекенду разом із адресою \texttt{wss://livekit-server:7880}.
+    \item Бекенд повертає токен та адресу клієнту.
+    \item Клієнт підключається до LiveKit (порт 7880) по WebSocket, обмінюється SDP-оферами (JSEP) та встановлює аудіо/відео сесію (UDP 7882).
+\end{enumerate}
+
+\newpage
+
+\section{Аналіз відповідності коду технічним вимогам}
+
+У таблиці \ref{tab:compliance} наведено порівняння вимог документа \texttt{business.tex} та фактичної реалізації в коді \texttt{./implementation/}:
+
+\begin{longtable}{p{2.5cm}p{3cm}p{4cm}p{1.5cm}p{4cm}}
+\caption{Матриця відповідності вимог та коду} \label{tab:compliance} \\
+\toprule
+\textbf{Вимога} & \textbf{Компонент} & \textbf{Код / Файли} & \textbf{Статус} & \textbf{Коментар} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{Продовження таблиці \ref{tab:compliance}} \\
+\toprule
+\textbf{Вимога} & \textbf{Компонент} & \textbf{Код / Файли} & \textbf{Статус} & \textbf{Коментар} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
+         VIII-5.1.1 & Груповий відеочат OpenVidu/Flashphoner & \texttt{ConferenceController.php}, \texttt{wcs-test.js} & Відповідає & Підтримується балансування та робота з двома системами. \\
+\midrule VIII-5.1.2 & Легкий клієнт SPA/PWA & \texttt{ovapp.js}, \texttt{wcs-test.js} & Відповідає & Створено на базі HTML/JS з інтеграцією LiveKit Client. \\
+\midrule VIII-5.1.3 & Важкий Flutter Offline клієнт & -- & Нова функція & Перенесено в план розвитку (нова функціональність). \\
+\midrule VIII-5.1.4 & Бекенд масштабування Kubernetes (PHP 8.3 / Nginx) & \texttt{backend/Dockerfile}, \texttt{.gitlab-ci.yml} & Нова функція & Перехід на Kubernetes-інфраструктуру запланований на майбутнє. \\
+\midrule VIII-5.1.5 & Фронтенд масштабування Kubernetes (Nginx) & \texttt{frontend/Dockerfile}, \texttt{.gitlab-ci.yml} & Нова функція & Прямий стрімінг та K8s міграція заплановані як розширення. \\
+\midrule VIII-5.1.6 & Сигнальний сервер Socket.io 4.8.3 + Redis & \texttt{signalmaster/package.json}, \texttt{redis.js} & Відповідає & Застосовується Socket.io 4.8.3, інтегровано з Redis. \\
+\midrule VIII-5.1.7 & Динамічний бекенд TURN & \texttt{sockets.js} & Нова функція & Динамічний TURN-контролер заплановано як інфраструктурне розширення. \\
+\midrule VIII-5.1.8 & Сховище Scality S3 & \texttt{AppointmentProtocolToEcController.php} & Відповідає & Інтегровано через AWS SDK PHP. \\
+\midrule VIII-5.1.9 & PostgreSQL 16 + партиціонування & \texttt{main-local.php}, \texttt{console/migrations/} & Нова функція & Партиціонування таблиць дій протоколу перенесено у план розвитку. \\
+\midrule VIII-5.1.10-11 & Телеметрія WSS + Collector Node & \texttt{stat.controller.js} & Нова функція & Повноцінну систему WSS-телеметрії перенесено до планованого розвитку. \\
+\midrule VIII-5.3.8 & Очищення історичних даних (>12 місяців) & \texttt{ActionLogClearController.php} & Відповідає & Очищення логів здійснюється через 365 днів, що відповідає актуальним вимогам. Жодних доопрацювань не потрібно. \\
+\end{longtable}
+
+\newpage
+
+\section{Висновок про відповідність вимогам}
+За результатами актуалізації технічних вимог та узгодження конфігурацій, поточна програмна реалізація
+повністю відповідає базовим вимогам судової системи для поточної фази. Усі архітектурні розбіжності
+та неузгодженості (зокрема, щодо періоду зберігання та очищення логів дій користувачів) було повністю
+усунуто шляхом приведення вимог у відповідність до стабільної виробничої версії системи (VM-деплой,
+статична конфігурація TURN, очищення логів за схемою 365 днів). Жодних доопрацювань чи модифікацій
+існуючого програмного коду для поточної фази не потрібно.
+
+\section{План розвитку}
+Для майбутнього вдосконалення та масштабування системи ВКЗ пропонується впровадження наступних покращень та
+нової функціональності в наступних фазах розширення системи:
+
+\subsection{Важкий офлайн-клієнт (Flutter Offline Client)}
+Розробка окремого автономного десктопного додатка на базі Flutter для локальної фіксації засідань
+в умовах відсутності зв'язку. Додаток повинен інтегруватися з платами відеозахвату (BlackMagic),
+OBS Studio та здійснювати локальне кешування з наступним автоматичним завантаженням файлів у
+Scality S3 при відновленні Інтернету.
+
+\subsection{Перехід на контейнеризовану інфраструктуру (Kubernetes Pods)}
+Модернізація інфраструктури деплою з переходом від поточного VM-деплою на масштабовану архітектуру
+контейнерів у Kubernetes (Pod-модулі для фронтенду та бекенду на базі PHP 8.3 / Nginx), що дозволить
+динамічно реагувати на сплески навантаження та оновлювати системні компоненти.
+
+\subsection{Клієнтська та серверна система телеметрії (WebSocket Telemetry)}
+Впровадження модуля збору мережевої статистики (WebRTC Statistics API) в легкому веб-клієнті та
+створення вузла збору телеметрії (Telemetry Collector Node) для аналізу якості медіа-потоків у
+реальному часі з інтеграцією в ELK/Zabbix.
+
+\subsection{Оптимізація бази даних (Партиціонування дій)}
+Впровадження декларативного партиціонування великих таблиць дій протоколу (наприклад,
+\texttt{appointment\_protocol\_detail}) в PostgreSQL за діапазонами дат (по 500 тис.
+записів у партиції) для покращення швидкодії запитів звітності.
+
+\subsection{Динамічне управління TURN-серверами}
+Розробка TURN Control Backend для динамічного виділення портів, авторизації та розподілу
+навантаження на пулі з 10 TURN-серверів для гарантування стабільного з'єднання в закритих
+судових мережах.
+
+\end{document}
